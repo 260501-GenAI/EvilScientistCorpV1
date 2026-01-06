@@ -34,8 +34,12 @@ user_database = {
 
 # Create new users (POST request)
 @router.post("/")
-async def create_user():
-    return {"user":"Bob, 25, Illinois"}
+async def create_user(user:UserModel):
+    user_database[999] = user
+    return {
+        "message":user.username + " created successfully!",
+        "inserted_user":user
+    }
 
 # Get all users (GET request)
 @router.get("/")
