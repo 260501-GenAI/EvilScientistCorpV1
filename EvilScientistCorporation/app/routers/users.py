@@ -58,5 +58,16 @@ async def get_all_users():
 @router.delete("/{user_id}")
 async def delete_user(user_id:int):
 
+    # If the passed in user id exists as a key in the map, pop that User out
+    if user_id in user_database:
+
+        deleted_user = user_database.pop(user_id)
+
+        return{
+            "message":f"User {deleted_user.username} deleted successfully!",
+            "deleted_user":deleted_user
+        }
+    else:
+        return "User ID not found - can't delete!"
 
 # Update a specific user's info by ID (PUT request + path variable)
