@@ -9,12 +9,14 @@ from app.routers import users
 app = FastAPI()
 
 # Global custom Exception Handler
+# All Exceptions raised in the routers get handled here
 @app.exception_handler(HTTPException)
 async def custom_http_exception_handler(request:Request, exception:HTTPException):
     return JSONResponse(
         status_code=exception.status_code,
         content={"message":exception.detail}
     )
+
 
 # Import routers here
 app.include_router(users.router)

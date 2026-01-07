@@ -33,10 +33,14 @@ user_database = {
 }
 
 # Create new users (POST request)
-@router.post("/")
+# Note that I'm setting the success status code to 201 (created). Default is 200 (OK)
+@router.post("/", status_code=201)
 async def create_user(user:UserModel):
 
-    # TODO: uniqueness validation
+    #uniqueness validation for username (would be good to do this for email as well)
+    for existing_user in user_database.values():
+       if existing_user.username == user.username:
+           raise HTTPException(status_code=400, detail="Username taken! Choose another.")
 
     # Give the user an auto-incremented ID
     user.id = len(user_database) + 1
@@ -52,6 +56,9 @@ async def create_user(user:UserModel):
 # Get all users (GET request)
 @router.get("/")
 async def get_all_users():
+
+    # TODO: maybe if the DB is empty, return a 404 (not found) or 204 (no content)
+
     return user_database
 
 # Delete a specific user by ID (DELETE request + path variable)
@@ -69,7 +76,7 @@ async def delete_user(user_id:int):
             "deleted_user":deleted_user
         }
     else:
-        return "User ID not found - can't delete!"
+        raise HTTPException(status_code=404, detail="User ID not found - can't delete!")
 
 # Update a specific user's info by ID (PUT request + path variable)
 @router.put("/{user_id}")
