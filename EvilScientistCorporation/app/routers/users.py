@@ -35,7 +35,15 @@ user_database = {
 # Create new users (POST request)
 @router.post("/")
 async def create_user(user:UserModel):
-    user_database[999] = user
+
+    # TODO: uniqueness validation
+
+    # Give the user an auto-incremented ID
+    user.id = len(user_database) + 1
+
+    # Store the user in the "DB"
+    user_database[user.id] = user
+
     return {
         "message":user.username + " created successfully!",
         "inserted_user":user
@@ -47,5 +55,8 @@ async def get_all_users():
     return user_database
 
 # Delete a specific user by ID (DELETE request + path variable)
+@router.delete("/{user_id}")
+async def delete_user(user_id:int):
+
 
 # Update a specific user's info by ID (PUT request + path variable)
