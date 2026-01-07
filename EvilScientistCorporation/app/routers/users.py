@@ -1,5 +1,5 @@
 # I want all user-based HTTP endpoints to live here
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.models.user_model import UserModel
 
@@ -55,6 +55,7 @@ async def get_all_users():
     return user_database
 
 # Delete a specific user by ID (DELETE request + path variable)
+# Notice how we include {path variables} in the route. the route is now /users/{some user id}
 @router.delete("/{user_id}")
 async def delete_user(user_id:int):
 
@@ -71,3 +72,23 @@ async def delete_user(user_id:int):
         return "User ID not found - can't delete!"
 
 # Update a specific user's info by ID (PUT request + path variable)
+@router.put("/{user_id}")
+async def update_user_info(user_id:int, updated_user:UserModel):
+
+    # Similarly to the delete above, check if the User ID exists
+    if user_id in user_database:
+
+        # Update all the user fields EXCEPT the ID
+        user_database[user_id].username = updated_user.username
+        user_database[user_id].password = updated_user.password
+        user_database[user_id].email = updated_user.email
+        return {
+            "message":f"{user_database[user_id].username} has been updated!",
+            "updated_user":user_database[user_id]
+        }
+
+    else:
+        raise HTTPException(status_code=404, detail="User ID not found - can't update!")
+
+
+
