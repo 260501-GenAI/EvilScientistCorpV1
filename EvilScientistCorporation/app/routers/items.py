@@ -41,7 +41,7 @@ async def get_all_items():
 
 # Subtract from item inventory (PATCH request)
 # This function only updates inventory, so it should be a PATCH request, not a PUT
-@router.patch("{item_id}/decrement_from_inventory/{amount}")
+@router.patch("/{item_id}/decrement_from_inventory/{amount}")
 async def decrement_from_inventory(item_id:int, amount:int):
 
     # Stolen from Yucheng 2026
@@ -60,3 +60,11 @@ async def decrement_from_inventory(item_id:int, amount:int):
         # 409 - conflict: used when there's a conflict between the request and the state of the resource
         raise HTTPException(status_code=409, detail=f"Item with ID {item_id} has insufficient inventory.")
     raise HTTPException(status_code=404, detail=f"Item with ID {item_id} not found.")
+
+# Display a variable amount of map elements (GET request with query param)
+# Note that we set a limit default of 1, so we'll get just 1 item if no query param is included
+@router.get("/some_items")
+async def get_some_items(limit:int=1):
+    # Turn the map's values into a list, then...
+    # return only the amount of elements specified by the limit
+    return list(item_database.values())[:limit]
