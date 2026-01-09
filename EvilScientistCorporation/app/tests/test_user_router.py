@@ -1,7 +1,6 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.models.user_model import UserModel
 
 # Create a TestClient so we can test our routes with HTTP requests
 # Notice we're wrapping app from main.py with this
@@ -69,3 +68,26 @@ def test_create_user_with_duplicate_username():
     # Assert the 400 status code and the error message
     assert response.status_code == 400
     assert response.json().get("message") == "Username taken! Choose another."
+
+
+# NOTE on mocking: In a real app, we definitely don't always want to hit a real database
+# Sometimes, we just want to test the logic AROUND the actual DB, without manipulating real data
+# Libraries like unittest.mock or pytest-mock can help with this.
+
+def test_create_user_success_with_mock(mocker):
+
+    # Mock the user_database to be an empty dict
+    mocker.patch("app.routers.users.user_database", {})
+
+    # Send the POST and do some asserts as usual
+    response = client.post(
+        "/users/", # the endpoint create_user() lives at
+        json={
+            "username":"testuser",
+            "password":"testpassword",
+            "email":"testemail@email.com"
+        }
+    )
+
+    assert response.status_code == 201
+
