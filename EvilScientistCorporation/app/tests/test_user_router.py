@@ -72,12 +72,15 @@ def test_create_user_with_duplicate_username():
 
 # NOTE on mocking: In a real app, we definitely don't always want to hit a real database
 # Sometimes, we just want to test the logic AROUND the actual DB, without manipulating real data
+    # You'll hear the term "in isolation" -
+    # sometimes we want to test things IN ISOLATION without worrying about their dependencies!
 # Libraries like unittest.mock or pytest-mock can help with this.
 
 def test_create_user_success_with_mock(mocker):
 
     # Mock the user_database to be an empty dict
-    mocker.patch("app.routers.users.user_database", {})
+    mock_db = {}
+    mocker.patch("app.routers.users.user_database", mock_db)
 
     # Send the POST and do some asserts as usual
     response = client.post(
@@ -90,4 +93,13 @@ def test_create_user_success_with_mock(mocker):
     )
 
     assert response.status_code == 201
+
+    data = response.json()
+
+    assert "message" in data
+    assert data.get("message") == "testuser created successfully!"
+
+    # a different assertion - just make sure the length of the map increased
+    assert len(mock_db) == 1
+
 
