@@ -41,3 +41,31 @@ def test_create_user_success():
 
     # We're saving the data in a variable so we can test all the fields more easily
     # We then use .get() on the returned data since it's a JSON object (not a UserModel)
+
+
+# Here's one of many possible red tests (duplicate username)
+def test_create_user_with_duplicate_username():
+
+    # Send two post requests, which share a value for username (which should raise an Exception)
+    client.post(
+        "/users/",
+        json={
+            "username":"duplicate",
+            "password":"password",
+            "email":"email@email.com"
+        }
+    )
+
+    # NOTE: we only want to save this response, since we're testing the error response
+    response = client.post(
+        "/users/",
+        json={
+            "username":"duplicate",
+            "password":"password",
+            "email":"email@email.com"
+        }
+    )
+
+    # Assert the 400 status code and the error message
+    assert response.status_code == 400
+    assert response.json().get("message") == "Username taken! Choose another."
