@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.models.user_model import UserModel
 
 # Create a TestClient so we can test our routes with HTTP requests
 # Notice we're wrapping app from main.py with this
@@ -27,3 +28,16 @@ def test_create_user_success():
 
     # Assert that the response is what we expect (status code, message, returned data)
     assert response.status_code == 201
+
+    # Parse the JSON response body so we can test the returned data
+    data = response.json()
+
+    assert "message" in data # assert the message key exists in the first place
+    assert data.get("message") == "testuser created successfully!" # assert message value
+
+    # We won't assert on ALL the returned data - just the username so we see it
+    inserted_user = data.get("inserted_user", {}) # default to empty dict if dict isn't found
+    assert inserted_user.get("username") == "testuser"
+
+    # We're saving the data in a variable so we can test all the fields more easily
+    # We then use .get() on the returned data since it's a JSON object (not a UserModel)
